@@ -49,7 +49,7 @@ count_mat <- c()
 for (i in 1:length(samps)) {
     # Load count matrix and relabel cells by their sample
     count_mat_ <- Read10X(mtx_dirs[i])
-    colnames(counts) <- paste(samps[i], "_", colnames(counts), sep = "")
+    colnames(count_mat_) <- paste(samps[i], "_", colnames(count_mat_), sep = "")
     count_mat <- cbind(count_mat, count_mat_)
 
     df_allele_ <- read.table(file = allele_files[i], header = T, sep = "\t")
