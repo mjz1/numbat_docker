@@ -41,32 +41,24 @@ mtx_dirs <- strsplit(mtxdirs, ",")[[1]]
 allele_files <- file.path(outdir, paste0(samps, "_allele_counts.tsv.gz"))
 
 if (length(samps) > 1) {
-    message("Multiple samples detected. Reading and merging data...")
-    count_mats <- lapply(mtx_dirs, Read10X)
-    
-    mmats <- c()
-    for (i in 2:length(samps)) {
-        mmats <- c(mmats, paste0('count_mats[[', i, ']]'))
-    }
-    # Parseable by merge function below
-    mmats <- paste0("c(", paste(mmats, collapse = ","), ")")
-    count_mat <- merge(x = count_mats[[1]], y = eval(parse(text=mmats)), add.cell.ids = samps, project = patient)
-    
-    df_allele <- c()
-    for (i in 1:length(samps)) {
-        df_allele_ <- read.table(file = allele_files[i], header = T, sep = "\t")
-        df_allele_$sample <- samps[i]
-        df_allele_$group <- patient
-        df_allele <- rbind(df_allele, df_allele_)
-    }
-    
-} else {
-    # For single sample patients
-    count_mat <- Read10X(mtx_dirs)
-    df_allele <- read.table(file = allele_files, header = T, sep = "\t")
-    df_allele$sample <- samps[1]
-    df_allele$group <- patient
+    message("Multiple samples detected. Reading and merging data...")    
 }
+
+df_allele <- c()
+count_mat <- c()
+for (i in 1:length(samps)) {
+    # Load count matrix and relabel cells by their sample
+    count_mat_ <- Read10X(mtx_dirs[i])
+    colnames(counts) <- paste(samps[i], "_", colnames(counts), sep = "")
+    count_mat <- cbind(count_mat, count_mat_)
+
+    df_allele_ <- read.table(file = allele_files[i], header = T, sep = "\t")
+    df_allele_$cell <- paste(samps[i], "_", df_allele_$cell, sep = "")
+    df_allele_$sample <- samps[i]
+    df_allele_$group <- patient
+    df_allele <- rbind(df_allele, df_allele_)
+}
+
 
 # Save input files
 save(x = count_mat, file = "count_mat.rda")
