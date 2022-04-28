@@ -6,6 +6,7 @@ import os
 ## Split apart the genotyping and R into seperate jobs: 
 ## genotyping is light on memory but faster with more cores
 ## Numbat.R is more memory hungry, especially for multi-sample patients
+## Add logic to skip genotyping if already completed
 
 parser = argparse.ArgumentParser(description='Run the Numbat allele specific scRNA copy number pipeline')
 
@@ -86,7 +87,7 @@ numbat_r_cmd = f"""Rscript {numbat_rscript} \
     --outdir {outdir} \
     --genome_ver {genome_ver} \
     --cores {cores} \
-    --trans {trans}
+    --trans {trans} \
     --gamma {gamma} \
     --min_cells {min_cells} \
     --min_LLR {min_LLR}"""

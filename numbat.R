@@ -8,12 +8,12 @@ parser$add_argument("--patient", help="Patient identifier")
 parser$add_argument("--samples", help="Patient sample names")
 parser$add_argument("--mtxdirs", help="comma seperated list of matrix folders")
 parser$add_argument("--outdir", help="output directory")
-parser$add_argument("--genome_ver", help="Genome version (hg19, hg38)", default = "hg38")
-parser$add_argument("--cores", help="number of cores to use", default=4)
-parser$add_argument("--trans", help="Numbat HMM transmission probability", default=1e-5)
-parser$add_argument("--gamma", help="Numbat overdispersion parameter in allele counts", default=20)
-parser$add_argument("--min_cells", help="Numbat minimum number of cells for which an pseudobulk HMM will be run", default=20)
-parser$add_argument("--min_LLR", help="Numbat minimum log-likelihood ratio threshold to filter CNVs by. ", default=50)
+parser$add_argument("--genome_ver", help="Genome version (hg19, hg38) [default %(default)s]", default = "hg38")
+parser$add_argument("--cores", help="number of cores to use [default %(default)s]", default=4, type = "integer")
+parser$add_argument("--trans", help="Numbat HMM transmission probability [default %(default)s]", default=1e-5, type="double")
+parser$add_argument("--gamma", help="Numbat overdispersion parameter in allele counts [default %(default)s]", default=20, type = "integer")
+parser$add_argument("--min_cells", help="Numbat minimum number of cells for which an pseudobulk HMM will be run [default %(default)s]", default=20, type="integer")
+parser$add_argument("--min_LLR", help="Numbat minimum log-likelihood ratio threshold to filter CNVs by. [default %(default)s]", default=50, type="integer")
 
 args <- parser$parse_args()
 
@@ -22,7 +22,7 @@ samples = args$samples
 mtxdirs = args$mtxdirs
 outdir = args$outdir
 genome_ver = args$genome_ver
-cores = args$cores
+ncores = args$cores
 trans = args$trans
 gamma = args$gamma
 min_cells = args$min_cells
@@ -40,7 +40,8 @@ mtx_dirs <- strsplit(mtxdirs, ",")[[1]]
 
 allele_files <- file.path(outdir, paste0(samps, "_allele_counts.tsv.gz"))
 
-if (length(samps) > 1) { 
+if (length(samps) > 1) {
+    message("Multiple samples detected. Reading and merging data...")
     count_mats <- lapply(mtx_dirs, Read10X)
     
     mmats <- c()
@@ -83,7 +84,7 @@ out = run_numbat(
     max_iter = 2,
     min_LLR = min_LLR,
     init_k = 3,
-    ncores = cores,
+    ncores = ncores,
     plot = TRUE,
     out_dir = outdir
 )
