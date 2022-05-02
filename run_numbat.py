@@ -2,12 +2,6 @@ import argparse
 import subprocess
 import os
 
-# Improvements
-## Split apart the genotyping and R into seperate jobs: 
-## genotyping is light on memory but faster with more cores
-## Numbat.R is more memory hungry, especially for multi-sample patients
-## Add logic to skip genotyping if already completed
-
 parser = argparse.ArgumentParser(description='Run the Numbat allele specific scRNA copy number pipeline')
 
 # Required Arguments
@@ -66,7 +60,7 @@ min_LLR = args.min_LLR
 
 
 # Create the preprocessing command
-preprocess_cmd = f"""Rscript {pileup_script} \
+pileup_cmd = f"""Rscript {pileup_script} \
     --label {patient} \
     --samples {samples} \
     --bams {bams} \
@@ -79,7 +73,7 @@ preprocess_cmd = f"""Rscript {pileup_script} \
     --UMItag {UMItag} \
     --cellTAG {cellTAG}"""
 
-    
+# Run numbat command    
 numbat_r_cmd = f"""Rscript {numbat_rscript} \
     --patient {patient} \
     --samples {samples} \
@@ -92,31 +86,95 @@ numbat_r_cmd = f"""Rscript {numbat_rscript} \
     --min_cells {min_cells} \
     --min_LLR {min_LLR}"""
     
-# Open a run_numbat.sh script and print the commands to it
+# Create bash runscripts script and print the commands to them
+sh_pileup = f"{outdir}/scripts/run_pileup.sh"
 sh_numbat = f"{outdir}/scripts/run_numbat.sh"
-os.makedirs(os.path.dirname(sh_numbat), exist_ok=True)
+
+# Create directory for scripts
+os.makedirs(os.path.dirname(sh_pileup), exist_ok=True)
+
+# Print pileup command
+with open(sh_pileup, "w") as f:
+    print(pileup_cmd, file=f)
+    f.close()
+
+# Print run numbat command
 with open(sh_numbat, "w") as f:
-    print(preprocess_cmd, file=f)
     print(numbat_r_cmd, file=f)
     f.close()
 
-# Now submit the bash script in the container
-bsub_cmd=f"module purge; module load singularity/3.7.1; bsub \
-        -J {patient}_numbat \
+# Pileup bsub commands
+bsub_pileup=f"module purge; module load singularity/3.7.1; bsub \
+        -J {patient}_numbat_pileups \
+        -R \"rusage[mem=2]\" \
+        -R \"select[type==CentOS7]\" \
+        -n 8 \
+        -W {walltime} \
+        -o {outdir}/pileups.out \
+        -e {outdir}/pileups.err \
+        singularity exec \
+        --bind /juno:/juno \
+        {numbat_img} sh {sh_pileup}"
+
+bsub_pileup_sh = f"{outdir}/scripts/bsub_pileups.sh"
+with open(bsub_pileup_sh, "w") as f:
+    print(f"{bsub_pileup}", file=f)
+    f.close()      
+        
+bsub_numbat=f"module purge; module load singularity/3.7.1; bsub \
+        -J {patient}_numbat_r \
+        -w 'done({patient}_numbat_pileups)' \
         -R \"rusage[mem={mem}]\" \
         -R \"select[type==CentOS7]\" \
         -n {cores} \
         -W {walltime} \
-        -o {outdir}/out \
-        -e {outdir}/err \
+        -o {outdir}/numbat.out \
+        -e {outdir}/numbat.err \
         singularity exec \
         --bind /juno:/juno \
         {numbat_img} sh {sh_numbat}"
 
-numbat_bsub = f"{outdir}/scripts/bsub_numbat.sh"
+bsub_numbat_sh = f"{outdir}/scripts/bsub_numbat.sh"
+with open(bsub_numbat_sh, "w") as f:
+    print(f"{bsub_numbat}", file=f)
+    f.close() 
 
-with open(numbat_bsub, "w") as f:
-    print(f"{bsub_cmd}", file=f)
-    f.close()       
+# TODO: Add output paths
+final_sample = samples.split(",")[-1]
+pileup_out = f"{outdir}/{final_sample}_allele_counts.tsv.gz"
 
-subprocess.run(f"sh {numbat_bsub}", shell=True, check = True)
+numbat_out = f"{outdir}/numbat_out.rda"
+
+
+# Submit commands depending on existing outputs
+if os.path.exists(numbat_out):
+    print(f"Numbat already completed for {patient}. Skipping...")
+elif os.path.exists(pileup_out):
+    # Need to remove the job dependency
+    # This can be done better
+    #####
+    bsub_numbat=f"module purge; module load singularity/3.7.1; bsub \
+        -J {patient}_numbat_r \
+        -R \"rusage[mem={mem}]\" \
+        -R \"select[type==CentOS7]\" \
+        -n {cores} \
+        -W {walltime} \
+        -o {outdir}/numbat.out \
+        -e {outdir}/numbat.err \
+        singularity exec \
+        --bind /juno:/juno \
+        {numbat_img} sh {sh_numbat}"
+
+    bsub_numbat_sh = f"{outdir}/scripts/bsub_numbat.sh"
+    with open(bsub_numbat_sh, "w") as f:
+        print(f"{bsub_numbat}", file=f)
+        f.close() 
+    #####
+    
+    print(f"Running numbat for {patient}")
+    subprocess.run(f"sh {bsub_numbat_sh}", shell=True, check = True)
+else:
+    # Neither pilups or numbat completed.
+    print(f"Running pileups and numbat for {patient}")
+    subprocess.run(f"sh {bsub_pileup_sh}", shell=True, check = True)
+    subprocess.run(f"sh {bsub_numbat_sh}", shell=True, check = True)
