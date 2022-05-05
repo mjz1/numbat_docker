@@ -49,9 +49,18 @@ count_mat <- c()
 for (i in 1:length(samps)) {
     # Load count matrix and relabel cells by their sample
     count_mat_ <- Read10X(mtx_dirs[i])
+
+    # Check for multiomic and only return gene expression
+    if (length(count_mat_) > 1 & !is.null(names(count_mat_))) {
+        print("Multiomic data detected. Keeping only gene expression...")
+        count_mat_ <- count_mat_[['Gene Expression']]
+    }
+
+    # Paste sample names into cell_ids
     colnames(count_mat_) <- paste(samps[i], "_", colnames(count_mat_), sep = "")
     count_mat <- cbind(count_mat, count_mat_)
 
+    # Read and add cols to the allele df
     df_allele_ <- read.table(file = allele_files[i], header = T, sep = "\t")
     df_allele_$cell <- paste(samps[i], "_", df_allele_$cell, sep = "")
     df_allele_$sample <- samps[i]
