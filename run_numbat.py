@@ -28,6 +28,7 @@ parser.add_argument("--trans", help="Numbat HMM transmission probability", defau
 parser.add_argument("--gamma", help="Numbat overdispersion parameter in allele counts", default=20)
 parser.add_argument("--min_cells", help="Numbat minimum number of cells for which an pseudobulk HMM will be run", default=20)
 parser.add_argument("--min_LLR", help="Numbat minimum log-likelihood ratio threshold to filter CNVs by. ", default=50)
+parser.add_argument("--multi_allelic", help="Flag to enable multi-allelic calling ", action='store_true', default=False)
 
 
 # Parse the arguments
@@ -57,6 +58,15 @@ trans = args.trans
 gamma = args.gamma
 min_cells = args.min_cells
 min_LLR = args.min_LLR
+multi_allelic = args.multi_allelic
+
+
+
+# Set multi_allelic flag
+if multi_allelic:
+    multi_allelic="--multi_allelic"
+else:
+    multi_allelic=""
 
 
 # Create the preprocessing command
@@ -84,8 +94,10 @@ numbat_r_cmd = f"""Rscript {numbat_rscript} \
     --trans {trans} \
     --gamma {gamma} \
     --min_cells {min_cells} \
-    --min_LLR {min_LLR}"""
+    --min_LLR {min_LLR} \
+    {multi_allelic}"""
     
+
 # Create bash runscripts script and print the commands to them
 sh_pileup = f"{outdir}/scripts/run_pileup.sh"
 sh_numbat = f"{outdir}/scripts/run_numbat.sh"

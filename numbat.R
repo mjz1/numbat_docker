@@ -14,6 +14,7 @@ parser$add_argument("--trans", help="Numbat HMM transmission probability [defaul
 parser$add_argument("--gamma", help="Numbat overdispersion parameter in allele counts [default %(default)s]", default=20, type = "integer")
 parser$add_argument("--min_cells", help="Numbat minimum number of cells for which an pseudobulk HMM will be run [default %(default)s]", default=20, type="integer")
 parser$add_argument("--min_LLR", help="Numbat minimum log-likelihood ratio threshold to filter CNVs by. [default %(default)s]", default=50, type="integer")
+parser$add_argument("--multi_allelic", help="Flag to run numbat in multi-allelic mode [default %(default)s]", action="store_true", default=FALSE)
 
 args <- parser$parse_args()
 
@@ -27,6 +28,7 @@ trans = args$trans
 gamma = args$gamma
 min_cells = args$min_cells
 min_LLR = args$min_LLR
+multi_allelic = args$multi_allelic
 
 setwd(outdir)
 
@@ -73,6 +75,13 @@ for (i in 1:length(samps)) {
 save(x = count_mat, file = "count_mat.rda")
 save(x = df_allele, file = "df_allele.rda")
 
+# Set multi_allelic flag
+if (multi_allelic) {
+    multi_allelic=TRUE
+} else {
+    multi_allelic=FALSE
+}
+
 # Run numbat
 out = run_numbat(
     count_mat = count_mat, # gene x cell integer UMI count matrix 
@@ -87,7 +96,8 @@ out = run_numbat(
     init_k = 3,
     ncores = ncores,
     plot = TRUE,
-    out_dir = outdir
+    out_dir = outdir,
+    multi_allelic = multi_allelic
 )
 
 save(x = out, file = "numbat_out.rda")
