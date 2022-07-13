@@ -126,6 +126,7 @@ bsub_pileup=f"module purge; module load singularity/3.7.1; bsub \
         -e {outdir}/pileups.err \
         singularity exec \
         --bind /juno:/juno \
+        --bind /work:/work \
         {numbat_img} sh {sh_pileup}"
 
 bsub_pileup_sh = f"{outdir}/scripts/bsub_pileups.sh"
@@ -144,6 +145,7 @@ bsub_numbat=f"module purge; module load singularity/3.7.1; bsub \
         -e {outdir}/numbat.err \
         singularity exec \
         --bind /juno:/juno \
+        --bind /work:/work \
         {numbat_img} sh {sh_numbat}"
 
 bsub_numbat_sh = f"{outdir}/scripts/bsub_numbat.sh"
