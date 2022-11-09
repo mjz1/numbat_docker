@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This is a wrapper for the `Numbat` copy number called for scRNA. Please refer to the [original Github repo]((https://github.com/kharchenkolab/numbat)) or the [manuscript](https://www.nature.com/articles/s41587-022-01468-y) for more information.
+This is a wrapper for the `Numbat` copy number called for scRNA. Please refer to the [original Github repo](https://github.com/kharchenkolab/numbat) or the [manuscript](https://www.nature.com/articles/s41587-022-01468-y) for more information.
 
 ## How to run
 
