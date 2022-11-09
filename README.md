@@ -16,7 +16,7 @@ If a sample fails during the `numbat.R` script, simply pass the same submission 
 
 ## Using the Docker image
 
-Defaults are built to work the provided docker image. The latest docker image for Numbat can be pulled as follows:
+Defaults are built to work the provided docker image. The image contains all reference files in hg38 required to run the analysis. The latest docker image for Numbat can be pulled as follows:
 ```bash
 singularity pull numbat-rbase_latest.sif docker://pkharchenkolab/numbat-rbase:latest
 ```
