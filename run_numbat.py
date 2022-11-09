@@ -74,10 +74,6 @@ if high_purity:
 else:
     high_purity=""
 
-print(f"highp={high_purity}; multia={multi_allelic}")
-
-quit()
-
 # Create the preprocessing command
 pileup_cmd = f"""Rscript {pileup_script} \
     --label {patient} \
