@@ -116,7 +116,7 @@ Read10X <- function(
     list_of_data[[j]] <- do.call(cbind, lapply(X = full.data, FUN = `[[`, j))
     # Fix for Issue #913
     # list_of_data[[j]] <- as.sparse(x = list_of_data[[j]])
-    list_of_data[[j]] <- as(list_of_data[[j]], "sparseMatrix")
+    list_of_data[[j]] <- as(list_of_data[[j]], "dgCMatrix")
   }
   names(x = list_of_data) <- names(x = full.data[[1]])
   # If multiple features, will return a list, otherwise
@@ -227,6 +227,11 @@ if (high_purity) {
     )
 
     segs_loh = detect_clonal_loh(bulk, t = 1e-4)
+
+    # Save a file to keep track of high purity mode runs
+    fileConn<-file("high_purity")
+    writeLines(c(""), fileConn)
+    close(fileConn)
 }
 
 # Run numbat
