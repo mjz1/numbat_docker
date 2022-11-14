@@ -2,33 +2,33 @@ import argparse
 import subprocess
 import os
 
-parser = argparse.ArgumentParser(description='Run the Numbat allele specific scRNA copy number pipeline')
+parser = argparse.ArgumentParser(description='Run the Numbat allele specific scRNA copy number pipeline',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 # Required Arguments
-parser.add_argument("--numbat_img", help="The numbat image file", type=str)
-parser.add_argument("--numbat_refdir", help="Directory of numbat reference files")
-parser.add_argument("--pileup_script", help="The numbat preprocessing pileup and phasing Rscript")
-parser.add_argument("--numbat_rscript", help="The Rscript to run numbat")
-parser.add_argument("--gmap", help="Location of the Eagle genetic map for phasing")
-parser.add_argument("--panel_dir", help="Directory of the 1000g reference panel")
-parser.add_argument("--snp_vcf", help="SNP vcf")
-parser.add_argument("--patient", help="Patient identifier")
-parser.add_argument("--samples", help="Patient sample names")
-parser.add_argument("--bams", help="comma seperated list of sample bams")
-parser.add_argument("--barcodes", help="comma seperated list of sample barcode files")
-parser.add_argument("--mtxdirs", help="comma seperated list of matrix folders")
-parser.add_argument("--outdir", help="output directory")
+parser.add_argument("--numbat_img", help="The numbat image file", default=argparse.SUPPRESS)
+parser.add_argument("--pileup_script", help="The numbat preprocessing pileup and phasing Rscript", default="/numbat/inst/bin/pileup_and_phase.R")
+parser.add_argument("--numbat_rscript", help="The Rscript to run numbat", default=argparse.SUPPRESS)
+parser.add_argument("--gmap", help="Location of the Eagle genetic map for phasing", default="/Eagle_v2.4.1/tables/genetic_map_hg38_withX.txt.gz")
+parser.add_argument("--panel_dir", help="Directory of the 1000g reference panel", default="/data/1000G_hg38/")
+parser.add_argument("--snp_vcf", help="SNP vcf", default="/data/genome1K.phase3.SNP_AF5e2.chr1toX.hg38.vcf")
+parser.add_argument("--patient", help="Patient name. ", default=argparse.SUPPRESS)
+parser.add_argument("--samples", help="Comma seperated list of samples", default=argparse.SUPPRESS)
+parser.add_argument("--bams", help="Comma seperated list of sample bams.", default=argparse.SUPPRESS)
+parser.add_argument("--barcodes", help="Comma seperated list of sample barcode files", default=argparse.SUPPRESS)
+parser.add_argument("--mtxdirs", help="Comma seperated list of matrix folders (filtered_feature_bc_matrix folder from 10X cellranger)", default=argparse.SUPPRESS)
+parser.add_argument("--outdir", help="output directory", default=argparse.SUPPRESS)
 parser.add_argument("--UMItag", help="UMItag option for pileup script", default = "Auto")
 parser.add_argument("--cellTAG", help="cellTAG option for pileup script", default = "CB")
-parser.add_argument("--genome_ver", help="Genome version (hg19, hg38)", default = "hg38")
-parser.add_argument("--cores", help="number of cores to use", default=4)
-parser.add_argument("--mem", help="amount of memory to use", default=8)
+parser.add_argument("--genome_ver", help="Genome version (hg19, hg38)", default = "hg38", choices=["hg19","hg38"])
+parser.add_argument("--cores", help="number of cores to use", default=4, type=int)
+parser.add_argument("--mem", help="amount of memory to use", default=8, type=int)
 parser.add_argument("--walltime", help="amount of walltime to use", default="48:00")
-parser.add_argument("--trans", help="Numbat HMM transmission probability", default=1e-5)
+parser.add_argument("--trans", help="Numbat HMM transmission probability", default=1e-5, type=float)
 parser.add_argument("--gamma", help="Numbat overdispersion parameter in allele counts", default=20)
 parser.add_argument("--min_cells", help="Numbat minimum number of cells for which an pseudobulk HMM will be run", default=20)
 parser.add_argument("--min_LLR", help="Numbat minimum log-likelihood ratio threshold to filter CNVs by. ", default=50)
-parser.add_argument("--multi_allelic", help="Flag to enable multi-allelic calling ", action='store_true', default=False)
+parser.add_argument("--multi_allelic", help="Flag to enable multi-allelic calling", action='store_true', default=True)
+parser.add_argument("--high_purity", help="Flag to detect and exclude regions of clonal deletions/LOH before running Numbat. Recommended for cell line data or high-purity tumors", action='store_true', default=False)
 
 
 # Parse the arguments
@@ -36,7 +36,6 @@ args = parser.parse_args()
 
 # Process args
 numbat_img = args.numbat_img
-numbat_refdir = args.numbat_refdir
 pileup_script = args.pileup_script
 numbat_rscript = args.numbat_rscript
 gmap = args.gmap
@@ -59,6 +58,7 @@ gamma = args.gamma
 min_cells = args.min_cells
 min_LLR = args.min_LLR
 multi_allelic = args.multi_allelic
+high_purity = args.high_purity
 
 
 
@@ -67,7 +67,12 @@ if multi_allelic:
     multi_allelic="--multi_allelic"
 else:
     multi_allelic=""
-
+    
+# Set high purity flag
+if high_purity:
+    high_purity="--high_purity"
+else:
+    high_purity=""
 
 # Create the preprocessing command
 pileup_cmd = f"""Rscript {pileup_script} \
@@ -82,6 +87,7 @@ pileup_cmd = f"""Rscript {pileup_script} \
     --ncores {cores} \
     --UMItag {UMItag} \
     --cellTAG {cellTAG}"""
+    
 
 # Run numbat command    
 numbat_r_cmd = f"""Rscript {numbat_rscript} \
@@ -95,7 +101,8 @@ numbat_r_cmd = f"""Rscript {numbat_rscript} \
     --gamma {gamma} \
     --min_cells {min_cells} \
     --min_LLR {min_LLR} \
-    {multi_allelic}"""
+    {multi_allelic} \
+    {high_purity}"""
     
 
 # Create bash runscripts script and print the commands to them
