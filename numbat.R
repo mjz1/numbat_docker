@@ -143,6 +143,9 @@ parser$add_argument("--genome_ver", help="Genome version (hg19, hg38) [default %
 parser$add_argument("--cores", help="number of cores to use [default %(default)s]", default=4, type = "integer")
 parser$add_argument("--trans", help="Numbat HMM transmission probability [default %(default)s]", default=1e-5, type="double")
 parser$add_argument("--gamma", help="Numbat overdispersion parameter in allele counts [default %(default)s]", default=20, type = "integer")
+parser$add_argument("--init_k", help="Number of clusters in the initial clustering [default %(default)s]", default=3, type = "integer")
+parser$add_argument("--max_iter", help="Maximum number of iterations to run the phyologeny optimization [default %(default)s]", default=2, type = "integer")
+parser$add_argument("--max_entropy", help="Entropy threshold to filter CNVs [default %(default)s]", default=0.5)
 parser$add_argument("--min_cells", help="Numbat minimum number of cells for which an pseudobulk HMM will be run [default %(default)s]", default=20, type="integer")
 parser$add_argument("--min_LLR", help="Numbat minimum log-likelihood ratio threshold to filter CNVs by. [default %(default)s]", default=50, type="integer")
 parser$add_argument("--multi_allelic", help="Flag to run numbat in multi-allelic mode [default %(default)s]", action="store_true", default=TRUE)
@@ -158,7 +161,10 @@ genome_ver = args$genome_ver
 ncores = args$cores
 trans = args$trans
 gamma = args$gamma
+init_k = args$init_k
+max_iter = args$max_iter
 min_cells = args$min_cells
+max_entropy = args$max_entropy
 min_LLR = args$min_LLR
 multi_allelic = args$multi_allelic
 high_purity = args$high_purity
@@ -242,9 +248,10 @@ out = run_numbat(
     genome = genome_ver,
     min_cells = min_cells,
     t = trans,
-    max_iter = 2,
+    max_iter = max_iter,
     min_LLR = min_LLR,
-    init_k = 3,
+    init_k = init_k,
+    max_entropy = max_entropy,
     ncores = ncores,
     plot = TRUE,
     out_dir = outdir,
