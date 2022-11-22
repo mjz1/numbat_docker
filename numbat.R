@@ -130,28 +130,28 @@ Read10X <- function(
 #####
 
 # Script starts here
-library(argparse)
+library(optparse)
 
 # Parse command line arguments
-parser <- ArgumentParser()
+parser = OptionParser(description = "Run Numbat")
 
-parser$add_argument("--patient", help="Patient identifier")
-parser$add_argument("--samples", help="Patient sample names")
-parser$add_argument("--mtxdirs", help="comma seperated list of matrix folders")
-parser$add_argument("--outdir", help="output directory")
-parser$add_argument("--genome_ver", help="Genome version (hg19, hg38) [default %(default)s]", default = "hg38")
-parser$add_argument("--cores", help="number of cores to use [default %(default)s]", default=4, type = "integer")
-parser$add_argument("--trans", help="Numbat HMM transmission probability [default %(default)s]", default=1e-5, type="double")
-parser$add_argument("--gamma", help="Numbat overdispersion parameter in allele counts [default %(default)s]", default=20, type = "integer")
-parser$add_argument("--init_k", help="Number of clusters in the initial clustering [default %(default)s]", default=3, type = "integer")
-parser$add_argument("--max_iter", help="Maximum number of iterations to run the phyologeny optimization [default %(default)s]", default=2, type = "integer")
-parser$add_argument("--max_entropy", help="Entropy threshold to filter CNVs [default %(default)s]", default=0.5)
-parser$add_argument("--min_cells", help="Numbat minimum number of cells for which an pseudobulk HMM will be run [default %(default)s]", default=20, type="integer")
-parser$add_argument("--min_LLR", help="Numbat minimum log-likelihood ratio threshold to filter CNVs by. [default %(default)s]", default=50, type="integer")
-parser$add_argument("--multi_allelic", help="Flag to run numbat in multi-allelic mode [default %(default)s]", action="store_true", default=TRUE)
-parser$add_argument("--high_purity", help="Flag to detect and exclude regions of clonal deletions/LOH before running Numbat. Recommended for cell line data or high-purity tumors", action="store_true", default=FALSE)
+parser = add_option(parser, "--mtxdirs", help="comma seperated list of matrix folders")
+parser = add_option(parser, "--samples", help="Patient sample names")
+parser = add_option(parser, "--patient", help="Patient identifier")
+parser = add_option(parser, "--outdir", help="output directory")
+parser = add_option(parser, "--genome_ver", help="Genome version (hg19, hg38) [default %(default)s]", default = "hg38")
+parser = add_option(parser, "--cores", help="number of cores to use [default %(default)s]", default=4, type = "integer")
+parser = add_option(parser, "--trans", help="Numbat HMM transmission probability [default %(default)s]", default=1e-5, type="double")
+parser = add_option(parser, "--gamma", help="Numbat overdispersion parameter in allele counts [default %(default)s]", default=20, type = "integer")
+parser = add_option(parser, "--init_k", help="Number of clusters in the initial clustering [default %(default)s]", default=3, type = "integer")
+parser = add_option(parser, "--max_iter", help="Maximum number of iterations to run the phyologeny optimization [default %(default)s]", default=2, type = "integer")
+parser = add_option(parser, "--max_entropy", help="Entropy threshold to filter CNVs [default %(default)s]", default=0.5)
+parser = add_option(parser, "--min_cells", help="Numbat minimum number of cells for which an pseudobulk HMM will be run [default %(default)s]", default=20, type="integer")
+parser = add_option(parser, "--min_LLR", help="Numbat minimum log-likelihood ratio threshold to filter CNVs by. [default %(default)s]", default=50, type="integer")
+parser = add_option(parser, "--multi_allelic", help="Flag to run numbat in multi-allelic mode [default %(default)s]", action="store_true", default=TRUE)
+parser = add_option(parser, "--high_purity", help="Flag to detect and exclude regions of clonal deletions/LOH before running Numbat. Recommended for cell line data or high-purity tumors", action="store_true", default=FALSE)
 
-args <- parser$parse_args()
+args <- parse_args(parser)
 
 patient = args$patient
 samples = args$samples
