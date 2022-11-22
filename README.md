@@ -21,6 +21,7 @@ Defaults are built to work the provided docker image. The image contains all ref
 VER="1.0.4" ### Match this to the latest version uploaded on github
 dt=$(date +"%d_%m_%Y") ### Add date
 singularity pull "numbat-rbase_$VER"__"$dt.sif" docker://pkharchenkolab/numbat-rbase:latest
+ln -s "numbat-rbase_$VER"__"$dt.sif" "numbat-rbase_latest.sif"
 ```
 
 
