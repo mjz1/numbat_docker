@@ -33,7 +33,6 @@ parser.add_argument("--init_k", help="Number of clusters in the initial clusteri
 parser.add_argument("--max_iter", help="Maximum number of iterations to run the phyologeny optimization", default=2, type=int)
 parser.add_argument("--max_entropy", help="Entropy threshold to filter CNVs", default=0.5)
 
-
 # Parse the arguments
 args = parser.parse_args()
 
@@ -157,8 +156,8 @@ for i, pt in enumerate(pt_dict.keys()):
                     --max_entropy {max_entropy} \
                     --cores {cores} \
                     {high_purity}"""
-                    
             subprocess.run(cmd, shell=True, check=False)
+
             
         
     if combine_patients in {'combine', 'both'}:
@@ -190,4 +189,5 @@ for i, pt in enumerate(pt_dict.keys()):
                         {high_purity}"""
                             
             subprocess.run(cmd, shell=True, check=False)
+
         
