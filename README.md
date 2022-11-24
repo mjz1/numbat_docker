@@ -62,8 +62,8 @@ optional arguments:
   --trans TRANS         Numbat HMM transmission probability (default: 1e-05)
   --gamma GAMMA         Numbat overdispersion parameter in allele counts (default: 20)
   --min_cells MIN_CELLS
-                        Numbat minimum number of cells for which an pseudobulk HMM will be run (default: 20)
-  --min_LLR MIN_LLR     Numbat minimum log-likelihood ratio threshold to filter CNVs by. (default: 50)
+                        Numbat minimum number of cells for which an pseudobulk HMM will be run (default: 50)
+  --min_LLR MIN_LLR     Numbat minimum log-likelihood ratio threshold to filter CNVs by. (default: 5)
   --init_k INIT_K       Number of clusters in the initial clustering (default: 3)
   --max_iter MAX_ITER   Maximum number of iterations to run the phyologeny optimization (default: 2)
   --max_entropy MAX_ENTROPY
