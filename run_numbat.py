@@ -25,8 +25,11 @@ parser.add_argument("--mem", help="amount of memory to use", default=8, type=int
 parser.add_argument("--walltime", help="amount of walltime to use", default="48:00")
 parser.add_argument("--trans", help="Numbat HMM transmission probability", default=1e-5, type=float)
 parser.add_argument("--gamma", help="Numbat overdispersion parameter in allele counts", default=20)
-parser.add_argument("--min_cells", help="Numbat minimum number of cells for which an pseudobulk HMM will be run", default=20)
-parser.add_argument("--min_LLR", help="Numbat minimum log-likelihood ratio threshold to filter CNVs by. ", default=50)
+parser.add_argument("--min_cells", help="Numbat minimum number of cells for which an pseudobulk HMM will be run", default=50)
+parser.add_argument("--min_LLR", help="Numbat minimum log-likelihood ratio threshold to filter CNVs by. ", default=5)
+parser.add_argument("--init_k", help="Number of clusters in the initial clustering", default=3, type=int)
+parser.add_argument("--max_iter", help="Maximum number of iterations to run the phyologeny optimization", default=2, type=int)
+parser.add_argument("--max_entropy", help="Entropy threshold to filter CNVs", default=0.5)
 parser.add_argument("--multi_allelic", help="Flag to enable multi-allelic calling", action='store_true', default=True)
 parser.add_argument("--high_purity", help="Flag to detect and exclude regions of clonal deletions/LOH before running Numbat. Recommended for cell line data or high-purity tumors", action='store_true', default=False)
 
@@ -57,6 +60,9 @@ trans = args.trans
 gamma = args.gamma
 min_cells = args.min_cells
 min_LLR = args.min_LLR
+init_k = args.init_k
+max_iter = args.max_iter
+max_entropy = args.max_entropy
 multi_allelic = args.multi_allelic
 high_purity = args.high_purity
 
@@ -101,6 +107,9 @@ numbat_r_cmd = f"""Rscript {numbat_rscript} \
     --gamma {gamma} \
     --min_cells {min_cells} \
     --min_LLR {min_LLR} \
+    --max_iter {max_iter} \
+    --init_k {init_k} \
+    --max_entropy {max_entropy} \
     {multi_allelic} \
     {high_purity}"""
     

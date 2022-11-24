@@ -20,9 +20,18 @@ parser.add_argument("--mem", help="Amount of memory to use per core", default=8)
 parser.add_argument("--cores", help="Number of cores", default=4)
 parser.add_argument("--combine_patients", help="Flag to combine patient samples. Allowable values: single, combine, both", choices=["single","combine", "both"], default="both")
 parser.add_argument("--combine_mem", default=30, help="For combination runs how much memory to use per core")
+parser.add_argument("--walltime", help="amount of walltime to use", default="48:00")
+parser.add_argument("--combine_walltime", help="amount of walltime to use in combined mode", default="72:00")
 parser.add_argument("--high_purity", help="Flag to detect and exclude regions of clonal deletions/LOH before running Numbat. Recommended for cell line data or high-purity tumors", action='store_true', default=False)
 parser.add_argument("--dry_run", help="Flag to simply print all samples that will run, but not run them", action='store_true', default=False)
 parser.add_argument("--target_column", help="Column in the isabl df to use as the sample id. Usually 'target_sample' or 'target_aliquot' when samples have multiple associated samples.", default='target_sample')
+parser.add_argument("--trans", help="Numbat HMM transmission probability", default=1e-5, type=float)
+parser.add_argument("--gamma", help="Numbat overdispersion parameter in allele counts", default=20)
+parser.add_argument("--min_cells", help="Numbat minimum number of cells for which an pseudobulk HMM will be run", default=50)
+parser.add_argument("--min_LLR", help="Numbat minimum log-likelihood ratio threshold to filter CNVs by. ", default=5)
+parser.add_argument("--init_k", help="Number of clusters in the initial clustering", default=3, type=int)
+parser.add_argument("--max_iter", help="Maximum number of iterations to run the phyologeny optimization", default=2, type=int)
+parser.add_argument("--max_entropy", help="Entropy threshold to filter CNVs", default=0.5)
 
 # Parse the arguments
 args = parser.parse_args()
@@ -43,6 +52,15 @@ numbat_rscript = args.numbat_rscript
 numbat_py = args.numbat_py
 dry_run = args.dry_run
 target_column = args.target_column
+walltime = args.walltime
+combine_walltime = args.combine_walltime
+trans = args.trans
+gamma = args.gamma
+min_cells = args.min_cells
+min_LLR = args.min_LLR
+init_k = args.init_k
+max_iter = args.max_iter
+max_entropy = args.max_entropy
 
 # Set high purity flag
 if high_purity:
@@ -122,17 +140,24 @@ for i, pt in enumerate(pt_dict.keys()):
                     --pileup_script {pileup_script} \
                     --numbat_rscript {numbat_rscript} \
                     --mem {mem} \
-                    --walltime 48:00 \
+                    --walltime {walltime} \
                     --patient {samp} \
                     --samples {samp} \
                     --bams {pt_dict[pt][samp]['bam']} \
                     --barcodes {pt_dict[pt][samp]['barcodes']} \
                     --mtxdirs {pt_dict[pt][samp]['filt_mtx_dir']} \
                     --outdir {outdir_samp} \
+                    --trans {trans} \
+                    --gamma {gamma} \
+                    --min_cells {min_cells} \
+                    --min_LLR {min_LLR} \
+                    --max_iter {max_iter} \
+                    --init_k {init_k} \
+                    --max_entropy {max_entropy} \
                     --cores {cores} \
                     {high_purity}"""
-                    
-            subprocess.run(cmd, shell=True, check=True)
+            subprocess.run(cmd, shell=True, check=False)
+
             
         
     if combine_patients in {'combine', 'both'}:
@@ -146,15 +171,23 @@ for i, pt in enumerate(pt_dict.keys()):
                         --pileup_script {pileup_script} \
                         --numbat_rscript {numbat_rscript} \
                         --mem {combine_mem} \
-                        --walltime 72:00 \
+                        --walltime {combine_walltime} \
                         --patient {pt} \
                         --samples {','.join(samples)} \
                         --bams {','.join(bams)} \
                         --barcodes {','.join(barcodes)} \
                         --mtxdirs {','.join(mtx_dirs)} \
                         --outdir {outdir_pt}/combined \
+                        --trans {trans} \
+                        --gamma {gamma} \
+                        --min_cells {min_cells} \
+                        --min_LLR {min_LLR} \
+                        --max_iter {max_iter} \
+                        --init_k {init_k} \
+                        --max_entropy {max_entropy} \
                         --cores {cores} \
                         {high_purity}"""
                             
-            subprocess.run(cmd, shell=True, check=True)
+            subprocess.run(cmd, shell=True, check=False)
+
         
