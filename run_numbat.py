@@ -67,6 +67,7 @@ multi_allelic = args.multi_allelic
 high_purity = args.high_purity
 
 
+pileup_ncores = 8
 
 # Set multi_allelic flag
 if multi_allelic:
@@ -90,7 +91,7 @@ pileup_cmd = f"""Rscript {pileup_script} \
     --snpvcf {snp_vcf} \
     --paneldir {panel_dir} \
     --outdir {outdir} \
-    --ncores {cores} \
+    --ncores {pileup_ncores} \
     --UMItag {UMItag} \
     --cellTAG {cellTAG}"""
     
@@ -136,7 +137,7 @@ bsub_pileup=f"module purge; module load singularity/3.7.1; bsub \
         -J {patient}_numbat_pileups \
         -R \"rusage[mem=2]\" \
         -R \"select[type==CentOS7]\" \
-        -n 8 \
+        -n {pileup_ncores} \
         -W {walltime} \
         -o {outdir}/pileups.out \
         -e {outdir}/pileups.err \
