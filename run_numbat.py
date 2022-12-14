@@ -197,6 +197,7 @@ elif os.path.exists(pileup_out):
         singularity exec \
         --cleanenv \
         --bind /juno:/juno \
+        --bind /work:/work \
         {numbat_img} sh {sh_numbat}"
 
     bsub_numbat_sh = f"{outdir}/scripts/bsub_numbat.sh"
