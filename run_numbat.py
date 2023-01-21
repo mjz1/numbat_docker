@@ -138,11 +138,11 @@ bsub_pileup=f"module purge; module load singularity/3.7.1; bsub \
         -R \"rusage[mem=2]\" \
         -R \"select[type==CentOS7]\" \
         -n {pileup_ncores} \
-        -W {walltime} \
+        -W 8:00 \
         -o {outdir}/pileups.out \
         -e {outdir}/pileups.err \
         singularity exec \
-        --cleanenv \
+        --no-home \
         --bind /juno:/juno \
         --bind /work:/work \
         {numbat_img} sh {sh_pileup}"
@@ -162,7 +162,7 @@ bsub_numbat=f"module purge; module load singularity/3.7.1; bsub \
         -o {outdir}/numbat.out \
         -e {outdir}/numbat.err \
         singularity exec \
-        --cleanenv \
+        --no-home \
         --bind /juno:/juno \
         --bind /work:/work \
         {numbat_img} sh {sh_numbat}"
@@ -195,7 +195,7 @@ elif os.path.exists(pileup_out):
         -o {outdir}/numbat.out \
         -e {outdir}/numbat.err \
         singularity exec \
-        --cleanenv \
+        --no-home \
         --bind /juno:/juno \
         --bind /work:/work \
         {numbat_img} sh {sh_numbat}"
