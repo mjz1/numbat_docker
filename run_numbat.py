@@ -21,7 +21,7 @@ parser.add_argument("--UMItag", help="UMItag option for pileup script", default 
 parser.add_argument("--cellTAG", help="cellTAG option for pileup script", default = "CB")
 parser.add_argument("--genome_ver", help="Genome version (hg19, hg38)", default = "hg38", choices=["hg19","hg38"])
 parser.add_argument("--cores", help="number of cores to use", default=4, type=int)
-parser.add_argument("--mem", help="amount of memory to use", default=8, type=int)
+parser.add_argument("--mem", help="amount of memory to use", default=16, type=int)
 parser.add_argument("--walltime", help="amount of walltime to use", default="48:00")
 parser.add_argument("--trans", help="Numbat HMM transmission probability", default=1e-5, type=float)
 parser.add_argument("--gamma", help="Numbat overdispersion parameter in allele counts", default=20)
@@ -135,10 +135,10 @@ with open(sh_numbat, "w") as f:
 # Pileup bsub commands
 bsub_pileup=f"module purge; module load singularity/3.7.1; bsub \
         -J {patient}_numbat_pileups \
-        -R \"rusage[mem=2]\" \
+        -R \"rusage[mem=4]\" \
         -R \"select[type==CentOS7]\" \
         -n {pileup_ncores} \
-        -W 8:00 \
+        -W 24:00 \
         -o {outdir}/pileups.out \
         -e {outdir}/pileups.err \
         singularity exec \

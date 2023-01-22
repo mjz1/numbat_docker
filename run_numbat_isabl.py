@@ -16,7 +16,7 @@ parser.add_argument("--numbat_img", help="The numbat image file", default="./num
 parser.add_argument("--pileup_script", help="The numbat preprocessing pileup and phasing Rscript", default="/numbat/inst/bin/pileup_and_phase.R")
 parser.add_argument("--numbat_rscript", help="The Rscript to run numbat", default="./numbat.R")
 parser.add_argument("--numbat_py", help="The python script that wraps numbat", default="./run_numbat.py")
-parser.add_argument("--mem", help="Amount of memory to use per core", default=8)
+parser.add_argument("--mem", help="Amount of memory to use per core", default=16)
 parser.add_argument("--cores", help="Number of cores", default=4)
 parser.add_argument("--combine_patients", help="Flag to combine patient samples. Allowable values: single, combine, both", choices=["single","combine", "both"], default="both")
 parser.add_argument("--combine_mem", default=30, help="For combination runs how much memory to use per core")
