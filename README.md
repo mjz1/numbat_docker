@@ -8,10 +8,9 @@ This is a wrapper for the `Numbat` copy number caller for scRNA. Please refer to
 
 To run this pull the latest docker image for Numbat as follows:
 ```bash
-VER="1.2.1" ### Match this to the latest version uploaded on github
-dt=$(date +"%d_%m_%Y") ### Add date
-singularity pull "numbat-rbase_$VER"__"$dt.sif" docker://pkharchenkolab/numbat-rbase:latest
-ln -sf "numbat-rbase_$VER"__"$dt.sif" "numbat-rbase_latest.sif"
+VER="v1.3.2" ### Match this to the latest version uploaded on github
+singularity pull "numbat-rbase_$VER.sif" docker://pkharchenkolab/numbat-rbase:$VER
+ln -sf "numbat-rbase_$VER.sif" "numbat-rbase_latest.sif"
 ```
 
 The image contains all reference files in hg38 required to run the analysis.
